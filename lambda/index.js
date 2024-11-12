@@ -175,7 +175,7 @@ const ErrorHandler = {
     }
 };
 
-exports.handler = Alexa.SkillBuilders.custom()
+const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         SetReminderIntentHandler,  // Added new intent handler
@@ -188,4 +188,9 @@ exports.handler = Alexa.SkillBuilders.custom()
         IntentReflectorHandler)
     .addErrorHandlers(
         ErrorHandler)
-    .lambda();
+    .create();
+    const adapter = new ExpressAdapter(skill, false, false);
+    const app = express();
+
+    app.post('/', adapter.getRequestHandlers());
+    app.listen(3040);
