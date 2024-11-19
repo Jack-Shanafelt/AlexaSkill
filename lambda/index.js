@@ -7,12 +7,13 @@ const Alexa = require('ask-sdk-core');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
 
+
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Welcome to Randomized Wellness! You can set a reminder or start a wellness activity. What would you like to do?';
+        const speakOutput = 'Welcome to Randomized Wellness! You can set a reminder, start a wellness activity, check your streak, or ask for a wellness boost. What would you like to do?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -21,6 +22,7 @@ const LaunchRequestHandler = {
     }
 };
 
+// Intent 1: SetReminderIntent (uses slots)
 const SetReminderIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -44,17 +46,47 @@ const SetReminderIntentHandler = {
     }
 };
 
-const HelloWorldIntentHandler = {
-    canHandle(handlerInput) { 
+// Intent 2: StartWellnessActivityIntent
+const StartWellnessActivityIntentHandler = {
+    canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'StartWellnessActivityIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'Hello World!';
+        const speakOutput = 'Let’s start a wellness activity! Try doing 5 minutes of deep breathing or a quick stretch.';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+            .getResponse();
+    }
+};
+
+// Intent 3: CheckWellnessStreakIntent
+const CheckWellnessStreakIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CheckWellnessStreakIntent';
+    },
+    handle(handlerInput) {
+        const speakOutput = 'You have completed your wellness activities for 3 days in a row. Great job keeping it up!';
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
+// Intent 4: WellnessBoostIntent
+const WellnessBoostIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'WellnessBoostIntent';
+    },
+    handle(handlerInput) {
+        const speakOutput = 'Feeling tired? Here’s a quick boost: try doing 10 jumping jacks or a brief meditation session to regain energy.';
+
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
             .getResponse();
     }
 };
@@ -65,7 +97,7 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
+        const speakOutput = 'You can set a reminder, start a wellness activity, check your streak, or ask for a wellness boost. How can I assist you?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -88,11 +120,7 @@ const CancelAndStopIntentHandler = {
             .getResponse();
     }
 };
-/* *
- * FallbackIntent triggers when a customer says something that doesn’t map to any intents in your skill
- * It must also be defined in the language model (if the locale supports it)
- * This handler can be safely added but will be ingnored in locales that do not support it yet 
- * */
+
 const FallbackIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -107,59 +135,17 @@ const FallbackIntentHandler = {
             .getResponse();
     }
 };
-/* *
- * SessionEndedRequest notifies that a session was ended. This handler will be triggered when a currently open 
- * session is closed for one of the following reasons: 1) The user says "exit" or "quit". 2) The user does not 
- * respond or says something that does not match an intent defined in your voice model. 3) An error occurs 
- * */
+
 const SessionEndedRequestHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'SessionEndedRequest';
     },
     handle(handlerInput) {
         console.log(`~~~~ Session ended: ${JSON.stringify(handlerInput.requestEnvelope)}`);
-        // Any cleanup logic goes here.
-        return handlerInput.responseBuilder.getResponse(); // notice we send an empty response
+        return handlerInput.responseBuilder.getResponse();
     }
 };
 
-const TestIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TestIntent';
-    },
-    handle(handlerInput) {
-        const speakOutput = 'This is a test response';
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
-    }
-};
-/* *
- * The intent reflector is used for interaction model testing and debugging.
- * It will simply repeat the intent the user said. You can create custom handlers for your intents 
- * by defining them above, then also adding them to the request handler chain below 
- * */
-const IntentReflectorHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest';
-    },
-    handle(handlerInput) {
-        const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `You just triggered ${intentName}`;
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
-    }
-};
-/**
- * Generic error handling to capture any syntax or routing errors. If you receive an error
- * stating the request handler chain is not found, you have not implemented a handler for
- * the intent being invoked or included it in the skill builder below 
- * */
 const ErrorHandler = {
     canHandle() {
         return true;
@@ -178,9 +164,10 @@ const ErrorHandler = {
 const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        SetReminderIntentHandler,  // Added new intent handler
-        HelloWorldIntentHandler,
-        TestIntentHandler, 
+        SetReminderIntentHandler,  // Intent with slots
+        StartWellnessActivityIntentHandler,  // Intent 2
+        CheckWellnessStreakIntentHandler,  // Intent 3
+        WellnessBoostIntentHandler,  // Intent 4
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
@@ -189,8 +176,10 @@ const skill = Alexa.SkillBuilders.custom()
     .addErrorHandlers(
         ErrorHandler)
     .create();
-    const adapter = new ExpressAdapter(skill, false, false);
-    const app = express();
 
-    app.post('/', adapter.getRequestHandlers());
-    app.listen(3040);
+const adapter = new ExpressAdapter(skill, false, false);
+const app = express();
+
+app.use(express.static('public'));
+app.post('/', adapter.getRequestHandlers());
+app.listen(3040);
