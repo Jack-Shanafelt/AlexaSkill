@@ -6,7 +6,6 @@
 const Alexa = require('ask-sdk-core');
 const express = require('express');
 const { ExpressAdapter } = require('ask-sdk-express-adapter');
-const e = require('express');
 
 
 const LaunchRequestHandler = {
@@ -180,10 +179,6 @@ const skill = Alexa.SkillBuilders.custom()
 
 const adapter = new ExpressAdapter(skill, false, false);
 const app = express();
-const public = (express.static('public'))
-    app.use(express.static('public'));
-    http://localhost:3000/hello.html
-
-;
+app.use(express.static('public'));
 app.post('/', adapter.getRequestHandlers());
 app.listen(3040);
