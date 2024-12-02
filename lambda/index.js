@@ -195,7 +195,7 @@ const skill = Alexa.SkillBuilders.custom()
 const adapter = new ExpressAdapter(skill, false, false);
 const app = express();
 
-// app.use(express.static('public'));
-app.get('/', (req, res) => { res.send('<html><head><title>Title</title></head><body>This is a test.</body></html>') });
+app.use(express.static(__dirname + '/public'));
+// app.get('/', (req, res) => { res.send('<html><head><title>Title</title></head><body>This is a test.</body></html>') });
 app.post('/', adapter.getRequestHandlers());
 app.listen(3040);
